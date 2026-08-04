@@ -679,11 +679,27 @@ a { color: inherit; text-decoration: none; }
     min-width: 0;
     padding-inline: 1rem;
   }
+  /* Portrait is hidden on phones — center the whole hero block instead */
+  .hero {
+    align-items: center;
+    padding-top: 96px;
+    padding-bottom: 72px;
+  }
+  .hero-inner {
+    padding-bottom: 0;
+    text-align: center;
+  }
   .hero-title {
     font-size: clamp(2.95rem, 14vw, 3.7rem);
     line-height: 1.02;
+    margin-bottom: 1.3rem;
   }
-  .hero-lead { max-width: 28ch; }
+  .hero-lead {
+    max-width: 30ch;
+    margin-inline: auto;
+    margin-bottom: 2rem;
+  }
+  .hero-actions { justify-content: center; }
   .hero-portrait {
     display: none;
   }
