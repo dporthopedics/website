@@ -325,9 +325,11 @@ function pageHome() {
   <main id="main">
     <section class="hero" id="hero">
       <div class="hero-inner container">
-        <p class="eyebrow reveal">${esc(BIZ.role)} · Θεσσαλονίκη</p>
-        <h1 class="hero-title reveal">Κίνηση<br />με <em>Σιγουριά.</em></h1>
-        <p class="hero-lead reveal">Στο ${esc(BIZ.name)}, η διεθνής εξειδίκευση στη χειρουργική ώμου και η σύγχρονη ορθοπαιδική προσέγγιση συναντούν την εξατομικευμένη φροντίδα.</p>
+        <div class="hero-copy">
+          <p class="eyebrow reveal">${esc(BIZ.role)} · Θεσσαλονίκη</p>
+          <h1 class="hero-title reveal">Κίνηση<br />με <em>Σιγουριά.</em></h1>
+          <p class="hero-lead reveal">Στο ${esc(BIZ.name)}, η διεθνής εξειδίκευση στη χειρουργική ώμου και η σύγχρονη ορθοπαιδική προσέγγιση συναντούν την εξατομικευμένη φροντίδα.</p>
+        </div>
         <div class="hero-actions reveal">
           <a href="${r("epikoinonia.html")}" class="btn btn-primary">Κλείστε Ραντεβού</a>
           <a href="${r("ypiresies/index.html")}" class="btn btn-ghost">Οι Υπηρεσίες μας</a>
