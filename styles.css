@@ -220,14 +220,26 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   align-items: center;
   padding-top: 84px;
-  background:
-    radial-gradient(120% 90% at 80% 0%, var(--blush) 0%, transparent 45%),
-    radial-gradient(100% 80% at 0% 100%, var(--beige) 0%, transparent 50%),
-    linear-gradient(160deg, var(--sand) 0%, var(--cream) 55%, var(--sand) 100%);
+  /* Φωτογραφία φόντου με βαθμιδωτό πέπλο: αδιαφανές αριστερά (όπου κάθεται το
+     κείμενο) και ανοιχτό δεξιά, ώστε να φαίνεται η εικόνα χωρίς να χάνεται
+     η αναγνωσιμότητα. Το linear-gradient μπαίνει ΠΑΝΩ από την εικόνα. */
+  background-image:
+    linear-gradient(100deg,
+      rgba(247, 250, 252, 1) 0%,
+      rgba(247, 250, 252, 0.995) 46%,
+      rgba(245, 249, 252, 0.95) 58%,
+      rgba(238, 245, 251, 0.60) 74%,
+      rgba(232, 240, 248, 0.22) 100%),
+    url("assets/hero-bg.webp");
+  background-size: cover;
+  background-position: center right;
+  background-repeat: no-repeat;
+  background-color: var(--sand);
   overflow: hidden;
 }
 .hero::before { display: none; }
-.hero-inner { position: relative; max-width: 860px; }
+/* Πιο στενή στήλη ώστε το δεξί μέρος να μένει ελεύθερο για τη φωτογραφία */
+.hero-inner { position: relative; max-width: 640px; }
 .hero-inner { z-index: 2; }
 .hero .eyebrow { color: var(--mocha); }
 .hero-title {
@@ -270,29 +282,6 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid var(--rose);
   border-radius: 8px 8px 0 0;
   z-index: -1;
-}
-
-.hero-scroll {
-  position: absolute;
-  left: 50%; bottom: 30px;
-  transform: translateX(-50%);
-  width: 26px; height: 42px;
-  border: 1px solid var(--taupe);
-  border-radius: 100px;
-}
-.hero-scroll span {
-  position: absolute;
-  left: 50%; top: 9px;
-  width: 4px; height: 8px;
-  margin-left: -2px;
-  border-radius: 4px;
-  background: var(--taupe);
-  animation: scroll 1.8s var(--ease) infinite;
-}
-@keyframes scroll {
-  0% { opacity: 0; transform: translateY(0); }
-  35% { opacity: 1; }
-  70%, 100% { opacity: 0; transform: translateY(14px); }
 }
 
 /* ============================================================
@@ -644,13 +633,34 @@ a { color: inherit; text-decoration: none; }
   .contact-grid { grid-template-columns: 1fr; }
   .footer-inner { grid-template-columns: 1fr 1fr; }
   .hero {
-    align-items: flex-start;
+    align-items: stretch;
     padding-top: 108px;
+    padding-bottom: 40px;
     min-height: 100svh;
+    /* Σε κάθετη οθόνη η πανοραμική λήψη θα ζουμάριζε υπερβολικά, οπότε
+       σερβίρεται ξεχωριστό κάθετο κάδρο σε πλήρες πλάτος, αγκυρωμένο κάτω.
+       Το ύψος του βγαίνει από την αναλογία, άρα δεν μένει κενό στη μέση. */
+    background-image:
+      linear-gradient(180deg,
+        rgba(247, 250, 252, 1) 0%,
+        rgba(247, 250, 252, 1) 42%,
+        rgba(247, 250, 252, 0.45) 49%,
+        rgba(247, 250, 252, 0) 56%,
+        rgba(247, 250, 252, 0) 100%),
+      url("assets/hero-bg-mobile.webp");
+    background-position: center bottom;
+    background-size: 100% auto;
   }
   .hero-inner {
     max-width: 100%;
-    padding-bottom: 260px;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0;
+  }
+  .hero-actions { margin-top: auto; }
+  .hero .btn-ghost {
+    background: rgba(247, 250, 252, 0.95);
+    backdrop-filter: blur(6px);
   }
   .hero-title {
     font-size: clamp(3.2rem, 17vw, 4.4rem);
@@ -679,16 +689,10 @@ a { color: inherit; text-decoration: none; }
     min-width: 0;
     padding-inline: 1rem;
   }
-  /* Portrait is hidden on phones — center the whole hero block instead */
-  .hero {
-    align-items: center;
-    padding-top: 96px;
-    padding-bottom: 72px;
-  }
-  .hero-inner {
-    padding-bottom: 0;
-    text-align: center;
-  }
+  /* Τα υπόλοιπα (φωτογραφία κάτω, κουμπιά καρφωμένα στο τέλος) τα ορίζει
+     ήδη το breakpoint των 900px — εδώ μόνο ό,τι διαφέρει στα κινητά. */
+  .hero { padding-top: 96px; }
+  .hero-inner { text-align: center; }
   .hero-title {
     font-size: clamp(2.95rem, 14vw, 3.7rem);
     line-height: 1.02;
@@ -843,9 +847,35 @@ a.svc:hover .svc-more { color: var(--rose); transform: translateX(4px); }
   font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.1rem);
   color: var(--cocoa);
   margin: 2.4rem 0 1rem;
+  clear: both;
 }
 .svc-body > p { color: var(--ink-soft); margin: 0 0 1.1rem; }
 .svc-body h2:first-child { margin-top: 0; }
+
+/* Εικόνα υπηρεσίας — κάθετη λήψη, σταθερή αναλογία ώστε να μην «πηδάει» το layout */
+.svc-figure {
+  float: right;
+  width: min(300px, 42%);
+  margin: 0.25rem 0 1.4rem 1.8rem;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow: 0 30px 60px -40px rgba(74, 61, 51, 0.5);
+}
+.svc-figure img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+@media (max-width: 720px) {
+  .svc-figure {
+    float: none;
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto 1.6rem;
+  }
+}
 
 .ticks { list-style: none; margin: 0 0 1rem; padding: 0; }
 .ticks li {

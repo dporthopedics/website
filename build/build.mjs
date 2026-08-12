@@ -22,6 +22,10 @@ const abs = (p) => `${BASE}/${p}`;
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const attr = (s) => esc(s).replace(/"/g, "&quot;");
 
+// Πλήρης διεύθυνση για αναζήτηση στο Google Maps — με πόλη, ώστε να μην
+// μπερδεύεται η Θέρμη Θεσσαλονίκης με ομώνυμες περιοχές αλλού.
+const mapQuery = () => [BIZ.street, BIZ.area, BIZ.city, BIZ.postal].filter(Boolean).join(", ");
+
 // ---- structured data: the clinic (LocalBusiness / MedicalClinic) ----
 const clinicLD = {
   "@type": ["MedicalClinic", "MedicalBusiness", "LocalBusiness"],
@@ -45,7 +49,7 @@ const clinicLD = {
     addressCountry: BIZ.country,
   },
   geo: { "@type": "GeoCoordinates", latitude: BIZ.lat, longitude: BIZ.lng },
-  hasMap: `https://www.google.com/maps?q=${encodeURIComponent(BIZ.street + ", " + BIZ.area + " " + BIZ.postal)}`,
+  hasMap: `https://www.google.com/maps?q=${encodeURIComponent(mapQuery())}`,
   areaServed: ["Θέρμη", "Θεσσαλονίκη", "Καλαμαριά", "Πυλαία", "Πανόραμα", "Ανατολική Θεσσαλονίκη"],
   openingHoursSpecification: [{
     "@type": "OpeningHoursSpecification",
@@ -190,6 +194,33 @@ function ctaBand(depth) {
   </section>`;
 }
 
+// ---- contact section (αρχική + σελίδα επικοινωνίας) -----------------
+function contactSection(tag = "h2") {
+  return `
+    <section class="contact" id="contact">
+      <div class="container contact-grid">
+        <div class="contact-copy">
+          <p class="eyebrow reveal">Επικοινωνία</p>
+          <${tag} class="section-title reveal">Κλείστε το ραντεβού σας</${tag}>
+          <p class="contact-note reveal">Η λειτουργία του ιατρείου είναι <strong>κατόπιν ραντεβού</strong>. Επικοινωνήστε μαζί μας για να κανονίσουμε μαζί την επίσκεψή σας.</p>
+          <ul class="contact-list">
+            <li class="reveal"><span class="contact-label">Ωράριο</span><span class="contact-value">Καθημερινά και Σαββατοκύριακο, 09:00 – 22:00<br /><em>κατόπιν ραντεβού</em></span></li>
+            <li class="reveal"><span class="contact-label">Διεύθυνση</span><span class="contact-value">${esc(BIZ.street)}, ${esc(BIZ.area)}<br />${esc(BIZ.city)}</span></li>
+            <li class="reveal"><span class="contact-label">Τηλέφωνο</span><span class="contact-value"><a href="tel:${BIZ.phoneIntl}">${esc(BIZ.phoneDisplay)}</a></span></li>
+            <li class="reveal"><span class="contact-label">Email</span><span class="contact-value"><a href="mailto:${BIZ.email}">${esc(BIZ.email)}</a></span></li>
+          </ul>
+          <div class="contact-actions reveal">
+            <a href="tel:${BIZ.phoneIntl}" class="btn btn-primary">Καλέστε μας</a>
+            <a href="mailto:${BIZ.email}" class="btn btn-ghost">Στείλτε Email</a>
+          </div>
+        </div>
+        <div class="contact-map reveal">
+          <iframe title="Χάρτης — ${attr(BIZ.street + ", " + BIZ.area + ", " + BIZ.city)}" src="https://www.google.com/maps?q=${encodeURIComponent(mapQuery())}&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+        </div>
+      </div>
+    </section>`;
+}
+
 // ---- footer ---------------------------------------------------------
 function footer(depth) {
   const r = (p) => rel(depth, p);
@@ -302,7 +333,6 @@ function pageHome() {
           <a href="${r("ypiresies/index.html")}" class="btn btn-ghost">Οι Υπηρεσίες μας</a>
         </div>
       </div>
-      <div class="hero-scroll" aria-hidden="true"><span></span></div>
     </section>
 
     <div class="strip" aria-hidden="true">
@@ -369,6 +399,9 @@ function pageHome() {
         </div>
       </div>
     </section>
+` +
+    contactSection("h2") +
+    `
   </main>` +
     ctaBand(depth) +
     footer(depth);
@@ -538,6 +571,7 @@ function pageService(s, idx) {
       name: s.h1,
       description: s.desc,
       url: abs("ypiresies/" + s.slug + ".html"),
+      ...(s.image ? { image: abs(s.image) } : {}),
       provider: { "@id": `${BASE}/#clinic` },
     },
     faqLD(s.faq),
@@ -549,6 +583,7 @@ function pageService(s, idx) {
     canonical: "ypiresies/" + s.slug + ".html",
     keywords: s.keywords,
     ld,
+    image: s.image || undefined,
     type: "article",
   }) +
     header(depth, "services") +
@@ -568,7 +603,7 @@ function pageService(s, idx) {
     <section class="svc-detail">
       <div class="container svc-detail-grid">
         <article class="svc-body">
-          ${s.body.map((p) => `<p class="reveal">${p}</p>`).join("\n          ")}
+          ${s.image ? `<figure class="svc-figure reveal"><img src="${r(s.image)}" alt="${attr(s.imageAlt || s.h1)}" loading="lazy" decoding="async" /></figure>\n          ` : ""}${s.body.map((p) => `<p class="reveal">${p}</p>`).join("\n          ")}
 
           <h2 class="reveal">Τι περιλαμβάνει</h2>
           <ul class="ticks">
@@ -894,29 +929,9 @@ function pageContact() {
     header(depth, "contact") +
     crumbs(depth, trail) +
     `
-  <main id="main">
-    <section class="contact" id="contact">
-      <div class="container contact-grid">
-        <div class="contact-copy">
-          <p class="eyebrow reveal">Επικοινωνία</p>
-          <h1 class="section-title reveal">Κλείστε το ραντεβού σας</h1>
-          <p class="contact-note reveal">Η λειτουργία του ιατρείου είναι <strong>κατόπιν ραντεβού</strong>. Επικοινωνήστε μαζί μας για να κανονίσουμε μαζί την επίσκεψή σας.</p>
-          <ul class="contact-list">
-            <li class="reveal"><span class="contact-label">Ωράριο</span><span class="contact-value">Καθημερινά και Σαββατοκύριακο, 09:00 – 22:00<br /><em>κατόπιν ραντεβού</em></span></li>
-            <li class="reveal"><span class="contact-label">Διεύθυνση</span><span class="contact-value">${esc(BIZ.street)}, ${esc(BIZ.area)}<br />${esc(BIZ.city)}</span></li>
-            <li class="reveal"><span class="contact-label">Τηλέφωνο</span><span class="contact-value"><a href="tel:${BIZ.phoneIntl}">${esc(BIZ.phoneDisplay)}</a></span></li>
-            <li class="reveal"><span class="contact-label">Email</span><span class="contact-value"><a href="mailto:${BIZ.email}">${esc(BIZ.email)}</a></span></li>
-          </ul>
-          <div class="contact-actions reveal">
-            <a href="tel:${BIZ.phoneIntl}" class="btn btn-primary">Καλέστε μας</a>
-            <a href="mailto:${BIZ.email}" class="btn btn-ghost">Στείλτε Email</a>
-          </div>
-        </div>
-        <div class="contact-map reveal">
-          <iframe title="Χάρτης — ${attr(BIZ.street + ", " + BIZ.area)}" src="https://www.google.com/maps?q=${encodeURIComponent(BIZ.street + ", " + BIZ.area + " " + BIZ.postal)}&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
-        </div>
-      </div>
-    </section>
+  <main id="main">` +
+    contactSection("h1") +
+    `
   </main>` +
     footer(depth);
 }
