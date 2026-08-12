@@ -245,6 +245,9 @@ a { color: inherit; text-decoration: none; }
    περιορίζουμε μόνο τα ίδια τα κείμενα, ώστε να μένει ελεύθερο το δεξί μέρος. */
 .hero-inner { position: relative; z-index: 2; }
 .hero-inner > * { max-width: 620px; }
+/* Σε desktop η φωτογραφία είναι το φόντο του hero· το πλαίσιο είναι μόνο
+   για κινητό, όπου το φόντο μένει καθαρό. */
+.hero-photo { display: none; }
 .hero .eyebrow { color: var(--mocha); }
 .hero-title {
   font-family: var(--serif);
@@ -636,31 +639,19 @@ a { color: inherit; text-decoration: none; }
   .about-media { max-width: 460px; margin-inline: auto; }
   .contact-grid { grid-template-columns: 1fr; }
   .footer-inner { grid-template-columns: 1fr 1fr; }
-  /* Καθαρός διαχωρισμός: η φωτογραφία πιάνει μια λωρίδα 4:3 στην κορυφή και
-     σβήνει στο φόντο· από κάτω το κείμενο κάθεται σε καθαρή επιφάνεια, χωρίς
-     πέπλα ή κάρτες. Το ύψος της λωρίδας είναι 75vw (η αναλογία της εικόνας),
-     οπότε το κείμενο ξεκινά πάντα ακριβώς κάτω από αυτήν. */
+  /* Σε κινητό η φωτογραφία δεν μπαίνει ως φόντο αλλά ως δικό της πλαίσιο
+     κάτω από τα κουμπιά, οπότε το κείμενο κάθεται σε καθαρή επιφάνεια. */
   .hero {
-    /* κεντράρισμα στον χώρο κάτω από τη λωρίδα, ώστε να μη μένει κενό */
-    align-items: center;
-    padding-top: calc(75vw + 1.6rem);
-    padding-bottom: 40px;
-    min-height: 100svh;
+    align-items: flex-start;
+    padding-top: 108px;
+    padding-bottom: clamp(3rem, 9vw, 4.5rem);
+    min-height: auto;
     background-image:
-      /* φωτίζει μόνο τη ζώνη του header, ώστε να διαβάζεται το λογότυπο */
-      linear-gradient(180deg,
-        rgba(247, 250, 252, 0.96) 0,
-        rgba(247, 250, 252, 0.86) 66px,
-        rgba(247, 250, 252, 0) 104px),
-      /* σβήνει το κάτω άκρο της λωρίδας μέσα στο φόντο */
-      linear-gradient(180deg,
-        rgba(247, 250, 252, 0) calc(75vw - 130px),
-        rgba(247, 250, 252, 0.86) calc(75vw - 26px),
-        var(--cream) 75vw),
-      url("assets/hero-bg-mobile.webp");
-    background-repeat: no-repeat;
-    background-position: center top;
-    background-size: auto, auto, 100% auto;
+      radial-gradient(120% 90% at 80% 0%, var(--blush) 0%, transparent 45%),
+      radial-gradient(100% 80% at 0% 100%, var(--beige) 0%, transparent 50%),
+      linear-gradient(160deg, var(--sand) 0%, var(--cream) 55%, var(--sand) 100%);
+    background-size: auto;
+    background-position: center;
   }
   .hero-inner {
     max-width: 100%;
@@ -668,6 +659,20 @@ a { color: inherit; text-decoration: none; }
     padding-bottom: 0;
   }
   .hero-actions { margin-top: 1.6rem; }
+  .hero-photo {
+    display: block;
+    margin: clamp(2rem, 7vw, 3rem) 0 0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -34px rgba(23, 48, 64, 0.55);
+  }
+  .hero-photo img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
   .hero-title {
     font-size: clamp(3.2rem, 17vw, 4.4rem);
     max-width: 100%;

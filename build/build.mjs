@@ -332,6 +332,9 @@ function pageHome() {
           <a href="${r("epikoinonia.html")}" class="btn btn-primary">Κλείστε Ραντεβού</a>
           <a href="${r("ypiresies/index.html")}" class="btn btn-ghost">Οι Υπηρεσίες μας</a>
         </div>
+        <figure class="hero-photo reveal">
+          <img src="${r("assets/hero-bg-mobile.webp")}" alt="Τρισδιάστατη απεικόνιση άρθρωσης γόνατος με ένδειξη πόνου" decoding="async" width="1200" height="900" />
+        </figure>
       </div>
     </section>
 
