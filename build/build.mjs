@@ -325,15 +325,20 @@ function pageHome() {
   <main id="main">
     <section class="hero" id="hero">
       <div class="hero-inner container">
-        <p class="eyebrow reveal">${esc(BIZ.role)} · Θεσσαλονίκη</p>
-        <h1 class="hero-title reveal">Κίνηση<br />με <em>Σιγουριά.</em></h1>
-        <p class="hero-lead reveal">Στο ${esc(BIZ.name)}, η διεθνής εξειδίκευση στη χειρουργική ώμου και η σύγχρονη ορθοπαιδική προσέγγιση συναντούν την εξατομικευμένη φροντίδα.</p>
-        <div class="hero-actions reveal">
-          <a href="${r("epikoinonia.html")}" class="btn btn-primary">Κλείστε Ραντεβού</a>
-          <a href="${r("ypiresies/index.html")}" class="btn btn-ghost">Οι Υπηρεσίες μας</a>
+        <div class="hero-copy">
+          <p class="eyebrow reveal">${esc(BIZ.role)} · Θεσσαλονίκη</p>
+          <h1 class="hero-title reveal">Κίνηση<br />με <em>Σιγουριά.</em></h1>
+          <p class="hero-lead reveal">Στο ${esc(BIZ.name)}, η διεθνής εξειδίκευση στη χειρουργική ώμου και η σύγχρονη ορθοπαιδική προσέγγιση συναντούν την εξατομικευμένη φροντίδα.</p>
+          <div class="hero-actions reveal">
+            <a href="${r("epikoinonia.html")}" class="btn btn-primary">Κλείστε Ραντεβού</a>
+            <a href="${r("ypiresies/index.html")}" class="btn btn-ghost">Οι Υπηρεσίες μας</a>
+          </div>
         </div>
         <figure class="hero-photo reveal">
-          <img src="${r("assets/hero-bg-mobile.webp")}" alt="Τρισδιάστατη απεικόνιση άρθρωσης γόνατος με ένδειξη πόνου" decoding="async" width="1200" height="900" />
+          <picture>
+            <source media="(max-width: 900px)" srcset="${r("assets/hero-bg-mobile.webp")}" />
+            <img src="${r("assets/hero-photo.webp")}" alt="Ο Αθανάσιος Πατούσης σε αρθροσκόπηση ώμου στο χειρουργείο, με την εικόνα του αρθροσκοπίου στην οθόνη" decoding="async" width="960" height="1200" />
+          </picture>
         </figure>
       </div>
     </section>
@@ -557,6 +562,22 @@ function pageServicesHub() {
 // ====================================================================
 //  PAGE: SERVICE DETAIL
 // ====================================================================
+// Πρόσθετες ενότητες σελίδας υπηρεσίας: τίτλος H2, προαιρετική εισαγωγή και
+// προαιρετική λίστα (ticks). Επιτρέπεται HTML μέσα σε intro/items/outro.
+function svcSections(sections) {
+  if (!sections || !sections.length) return "";
+  return sections
+    .map((sec) => {
+      const intro = sec.intro ? `\n          <p class="reveal">${sec.intro}</p>` : "";
+      const items = sec.items && sec.items.length
+        ? `\n          <ul class="ticks">\n            ${sec.items.map((i) => `<li class="reveal">${i}</li>`).join("\n            ")}\n          </ul>`
+        : "";
+      const outro = sec.outro ? `\n          <p class="reveal">${sec.outro}</p>` : "";
+      return `\n          <h2 class="reveal">${esc(sec.h2)}</h2>${intro}${items}${outro}\n`;
+    })
+    .join("");
+}
+
 function pageService(s, idx) {
   const depth = 1;
   const r = (p) => rel(depth, p);
@@ -607,7 +628,7 @@ function pageService(s, idx) {
       <div class="container svc-detail-grid">
         <article class="svc-body">
           ${s.image ? `<figure class="svc-figure reveal"><img src="${r(s.image)}" alt="${attr(s.imageAlt || s.h1)}" loading="lazy" decoding="async" /></figure>\n          ` : ""}${s.body.map((p) => `<p class="reveal">${p}</p>`).join("\n          ")}
-
+${svcSections(s.sections)}
           <h2 class="reveal">Τι περιλαμβάνει</h2>
           <ul class="ticks">
             ${s.includes.map((i) => `<li class="reveal">${esc(i)}</li>`).join("\n            ")}
