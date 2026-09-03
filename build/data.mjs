@@ -28,6 +28,9 @@ export const BIZ = {
   instagram: "#",
   tiktok: "#",
   facebook: "#",
+  instadoctor: "https://www.instadoctor.gr/doctor/patousis-athanasios",
+  doctoranytime: "https://www.doctoranytime.gr/d/Orthopedikos/patousis-athanasios",
+  formspreeEndpoint: "https://formspree.io/f/mqpkqlrr",
   social: "—",
 };
 

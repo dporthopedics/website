@@ -195,7 +195,54 @@ function ctaBand(depth) {
 }
 
 // ---- contact section (αρχική + σελίδα επικοινωνίας) -----------------
-function contactSection(tag = "h2") {
+function contactSection(tag = "h2", includeForm = false) {
+  const form = includeForm ? `
+        <div class="contact-form-panel reveal">
+          <div class="contact-form-intro">
+            <p class="eyebrow">Φόρμα επικοινωνίας</p>
+            <h2 class="contact-form-title">Στείλτε μας μήνυμα</h2>
+            <p>Συμπληρώστε τα στοιχεία σας και θα επικοινωνήσουμε μαζί σας το συντομότερο δυνατό.</p>
+          </div>
+          <form class="contact-form" action="${attr(BIZ.formspreeEndpoint)}" method="POST">
+            <input type="hidden" name="_subject" value="Νέο μήνυμα από το dporthopedics.gr" />
+            <div class="form-honeypot" aria-hidden="true">
+              <label for="contact-company">Εταιρεία</label>
+              <input id="contact-company" type="text" name="_gotcha" tabindex="-1" autocomplete="off" />
+            </div>
+            <div class="form-field">
+              <label for="contact-name">Ονοματεπώνυμο <span aria-hidden="true">*</span></label>
+              <input id="contact-name" type="text" name="name" autocomplete="name" required maxlength="100" placeholder="Το ονοματεπώνυμό σας" />
+            </div>
+            <div class="form-field">
+              <label for="contact-email">Email <span aria-hidden="true">*</span></label>
+              <input id="contact-email" type="email" name="email" autocomplete="email" required maxlength="160" placeholder="name@example.com" />
+            </div>
+            <div class="form-field">
+              <label for="contact-phone">Τηλέφωνο</label>
+              <input id="contact-phone" type="tel" name="phone" autocomplete="tel" inputmode="tel" maxlength="30" placeholder="69X XXX XXXX" />
+            </div>
+            <div class="form-field">
+              <label for="contact-topic">Θέμα</label>
+              <select id="contact-topic" name="topic">
+                <option value="Κλείσιμο ραντεβού">Κλείσιμο ραντεβού</option>
+                <option value="Ερώτηση για υπηρεσία">Ερώτηση για υπηρεσία</option>
+                <option value="Λοιπό">Λοιπό</option>
+              </select>
+            </div>
+            <div class="form-field form-field--full">
+              <label for="contact-message">Μήνυμα <span aria-hidden="true">*</span></label>
+              <textarea id="contact-message" name="message" required maxlength="2000" rows="6" placeholder="Πώς μπορούμε να σας βοηθήσουμε;"></textarea>
+            </div>
+            <div class="form-field form-field--full form-consent">
+              <input id="contact-consent" type="checkbox" name="consent" value="Ναι" required />
+              <label for="contact-consent">Συμφωνώ να χρησιμοποιηθούν τα στοιχεία μου μόνο για την απάντηση στο αίτημά μου. <span aria-hidden="true">*</span></label>
+            </div>
+            <div class="form-field form-field--full form-footer">
+              <p class="form-privacy">Μην συμπεριλάβετε ευαίσθητα ιατρικά δεδομένα. Για επείγον περιστατικό καλέστε το 112.</p>
+              <button type="submit" class="btn btn-primary">Αποστολή μηνύματος <span aria-hidden="true">→</span></button>
+            </div>
+          </form>
+        </div>` : "";
   return `
     <section class="contact" id="contact">
       <div class="container contact-grid">
@@ -217,6 +264,7 @@ function contactSection(tag = "h2") {
         <div class="contact-map reveal">
           <iframe title="Χάρτης — ${attr(BIZ.street + ", " + BIZ.area + ", " + BIZ.city)}" src="https://www.google.com/maps?q=${encodeURIComponent(mapQuery())}&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
         </div>
+        ${form}
       </div>
     </section>`;
 }
@@ -332,6 +380,21 @@ function pageHome() {
           <div class="hero-actions reveal">
             <a href="${r("epikoinonia.html")}" class="btn btn-primary">Κλείστε Ραντεβού</a>
             <a href="${r("ypiresies/index.html")}" class="btn btn-ghost">Οι Υπηρεσίες μας</a>
+          </div>
+          <div class="booking-platforms reveal" aria-label="Online κράτηση ραντεβού">
+            <span class="booking-platforms-label">Κλείστε online μέσω</span>
+            <div class="booking-platforms-links">
+              <a class="booking-platform booking-platform--instadoctor" href="${attr(BIZ.instadoctor)}" target="_blank" rel="noopener noreferrer" aria-label="Κλείστε ραντεβού μέσω instadoctor.gr (ανοίγει σε νέα καρτέλα)">
+                <span class="booking-platform-mark" aria-hidden="true">i<span>+</span></span>
+                <span>instadoctor.gr</span>
+                <span class="booking-platform-arrow" aria-hidden="true">↗</span>
+              </a>
+              <a class="booking-platform booking-platform--doctoranytime" href="${attr(BIZ.doctoranytime)}" target="_blank" rel="noopener noreferrer" aria-label="Κλείστε ραντεβού μέσω doctoranytime (ανοίγει σε νέα καρτέλα)">
+                <span class="booking-platform-mark" aria-hidden="true">do</span>
+                <span>doctoranytime</span>
+                <span class="booking-platform-arrow" aria-hidden="true">↗</span>
+              </a>
+            </div>
           </div>
         </div>
         <figure class="hero-photo reveal">
@@ -954,7 +1017,7 @@ function pageContact() {
     crumbs(depth, trail) +
     `
   <main id="main">` +
-    contactSection("h1") +
+    contactSection("h1", true) +
     `
   </main>` +
     footer(depth);
