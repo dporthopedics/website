@@ -37,7 +37,7 @@ const clinicLD = {
   telephone: BIZ.phoneIntl,
   email: BIZ.email,
   image: abs("assets/dr-patousis.jpg"),
-  logo: abs("assets/dr-patousis.jpg"),
+  logo: abs("assets/dp-orthopedics-logo.png"),
   priceRange: "€€",
   currenciesAccepted: "EUR",
   address: {
@@ -141,7 +141,7 @@ function header(depth, active = "") {
   <header class="site-header" id="top">
     <nav class="nav container" aria-label="Κύρια πλοήγηση">
       <a href="${r("index.html")}" class="brand" aria-label="${attr(BIZ.name)} — Αρχική">
-        <span class="brand-mark">dp</span><span class="brand-text">orthopedics</span>
+        <img class="brand-logo" src="${r("assets/dp-orthopedics-logo.png")}" alt="" width="1183" height="341" />
       </a>
       <button class="nav-toggle" aria-label="Άνοιγμα μενού" aria-expanded="false"><span></span><span></span><span></span></button>
       <ul class="nav-links">
@@ -196,8 +196,11 @@ function ctaBand(depth) {
 
 // ---- contact section (αρχική + σελίδα επικοινωνίας) -----------------
 function contactSection(tag = "h2", includeForm = false) {
+  const messageButton = includeForm
+    ? `\n            <a href="#contact-form" class="btn btn-ghost">Στείλτε μας μήνυμα</a>`
+    : "";
   const form = includeForm ? `
-        <div class="contact-form-panel reveal">
+        <div class="contact-form-panel reveal" id="contact-form">
           <div class="contact-form-intro">
             <p class="eyebrow">Φόρμα επικοινωνίας</p>
             <h2 class="contact-form-title">Στείλτε μας μήνυμα</h2>
@@ -258,7 +261,7 @@ function contactSection(tag = "h2", includeForm = false) {
           </ul>
           <div class="contact-actions reveal">
             <a href="tel:${BIZ.phoneIntl}" class="btn btn-primary">Καλέστε μας</a>
-            <a href="mailto:${BIZ.email}" class="btn btn-ghost">Στείλτε Email</a>
+            <a href="mailto:${BIZ.email}" class="btn btn-ghost">Στείλτε Email</a>${messageButton}
           </div>
         </div>
         <div class="contact-map reveal">
@@ -279,7 +282,7 @@ function footer(depth) {
   <footer class="site-footer">
     <div class="container footer-inner">
       <div class="footer-brand">
-        <a href="${r("index.html")}" class="footer-brandmark" aria-label="${attr(BIZ.name)} — Αρχική"><span class="brand-mark">dp</span><span class="brand-text">orthopedics</span></a>
+        <a href="${r("index.html")}" class="footer-brandmark" aria-label="${attr(BIZ.name)} — Αρχική"><img class="brand-logo" src="${r("assets/dp-orthopedics-logo.png")}" alt="" width="1183" height="341" loading="lazy" /></a>
         <p class="footer-tag">${esc(BIZ.tagline)}</p>
         <p class="footer-addr">
           ${esc(BIZ.street)}, ${esc(BIZ.area)}<br />
@@ -471,7 +474,7 @@ function pageHome() {
       </div>
     </section>
 ` +
-    contactSection("h2") +
+    contactSection("h2", true) +
     `
   </main>` +
     ctaBand(depth) +
