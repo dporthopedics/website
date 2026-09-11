@@ -1269,6 +1269,12 @@ a.svc:hover .svc-more { color: var(--rose); transform: translateX(4px); }
 .post-card p { color: var(--ink-soft); font-size: 0.95rem; margin: 0 0 1.2rem; flex: 1; }
 .post-card time { font-size: 0.82rem; color: var(--taupe); }
 
+/* Soro blog feed (external embed on blog/index.html) */
+.posts-feed { border-top: 1px solid rgba(74, 61, 51, 0.12); }
+#soro-blog { min-height: 4rem; }
+#soro-blog img { max-width: 100%; height: auto; }
+#soro-blog a { color: var(--rose); }
+
 /* Article */
 .article-head {
   padding-block: clamp(2rem, 4vw, 3.4rem);

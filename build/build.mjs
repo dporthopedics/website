@@ -8,6 +8,9 @@ import { fileURLToPath } from "node:url";
 import { BASE, BIZ, SERVICES, AREAS, POSTS } from "./data.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+// Soro blog feed (client account) — rendered client-side on blog/index.html
+const SORO_EMBED_URL = "https://app.trysoro.com/api/embed/62c180c2-10af-4f0e-b2d6-899e25d9103a";
+
 const out = (p, html) => {
   const full = resolve(ROOT, p);
   mkdirSync(dirname(full), { recursive: true });
@@ -907,6 +910,16 @@ function pageBlogHub() {
       <div class="container">
         <div class="posts-grid">${cards}
         </div>
+      </div>
+    </section>
+    <section class="posts posts-feed" aria-labelledby="soro-blog-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Νέα άρθρα</p>
+          <h2 id="soro-blog-title" class="section-title">Πρόσφατη αρθρογραφία</h2>
+        </div>
+        <div id="soro-blog"></div>
+        <script src="${SORO_EMBED_URL}" defer></script>
       </div>
     </section>
   </main>` +
