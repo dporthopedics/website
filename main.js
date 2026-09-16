@@ -4,33 +4,133 @@
   var y = document.getElementById("year");
   if (y) y.textContent = new Date().getFullYear();
 
-  // Mobile navigation
+  var header = document.querySelector(".site-header");
+
+  /* ----------------------------------------------------------
+     Mobile navigation
+     ---------------------------------------------------------- */
   var toggle = document.querySelector(".nav-toggle");
   var links = document.querySelector(".nav-links");
+  var navOpen = false;
+  var savedScroll = 0;
+  var mq = window.matchMedia("(max-width: 900px)");
+
   if (toggle && links) {
-    toggle.addEventListener("click", function () {
-      var open = document.body.classList.toggle("nav-open");
-      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    if (!links.id) links.id = "primary-nav";
+    toggle.setAttribute("aria-controls", links.id);
+
+    // Η σκίαση φτιάχνεται εδώ ώστε να μη χρειάζεται αλλαγή σε κάθε σελίδα.
+    // Μπαίνει μέσα στο header: εκεί ζει και το panel, οπότε τα z-index
+    // (backdrop 105 < panel 110 < burger 120) μένουν συγκρίσιμα.
+    var backdrop = document.createElement("div");
+    backdrop.className = "nav-backdrop";
+    backdrop.hidden = false;
+    if (header) header.insertBefore(backdrop, header.firstChild);
+    else document.body.appendChild(backdrop);
+
+    var lockScroll = function () {
+      savedScroll = window.pageYOffset || document.documentElement.scrollTop || 0;
+      document.body.style.top = -savedScroll + "px";
+      document.body.classList.add("nav-lock");
+    };
+
+    var unlockScroll = function () {
+      document.body.classList.remove("nav-lock");
+      document.body.style.top = "";
+      // Χωρίς αυτό το scroll-behavior: smooth της σελίδας κάνει animate
+      // την επαναφορά και φαίνεται σαν να «πετάγεται» η σελίδα.
+      var root = document.documentElement;
+      var prev = root.style.scrollBehavior;
+      root.style.scrollBehavior = "auto";
+      window.scrollTo(0, savedScroll);
+      root.style.scrollBehavior = prev;
+    };
+
+    var closingTimer = null;
+
+    var openNav = function () {
+      if (navOpen) return;
+      navOpen = true;
+      if (closingTimer) { clearTimeout(closingTimer); closingTimer = null; }
+      document.body.classList.remove("nav-closing");
+      lockScroll();
+      document.body.classList.add("nav-open");
+      toggle.setAttribute("aria-expanded", "true");
+      toggle.setAttribute("aria-label", "Κλείσιμο μενού");
+      links.scrollTop = 0;
+    };
+
+    var closeNav = function (returnFocus) {
+      if (!navOpen) return;
+      navOpen = false;
+      // Κρατάμε το panel ορατό όσο γλιστράει προς τα έξω, μετά το κρύβουμε
+      // πραγματικά ώστε να βγει από τη σειρά του Tab.
+      document.body.classList.add("nav-closing");
+      if (closingTimer) clearTimeout(closingTimer);
+      closingTimer = setTimeout(function () {
+        document.body.classList.remove("nav-closing");
+        closingTimer = null;
+      }, 500);
+      document.body.classList.remove("nav-open");
+      unlockScroll();
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "Άνοιγμα μενού");
+      if (returnFocus) toggle.focus();
+    };
+
+    toggle.addEventListener("click", function (e) {
+      e.preventDefault();
+      if (navOpen) closeNav(false);
+      else openNav();
     });
+
+    // Κλείσιμο όταν ο χρήστης διαλέξει σελίδα (και για links με εικονίδιο μέσα)
     links.addEventListener("click", function (e) {
-      if (e.target.tagName === "A") {
-        document.body.classList.remove("nav-open");
-        toggle.setAttribute("aria-expanded", "false");
-      }
+      var a = e.target.closest ? e.target.closest("a") : null;
+      if (a && links.contains(a)) closeNav(false);
     });
+
+    backdrop.addEventListener("click", function () { closeNav(true); });
+
+    document.addEventListener("keydown", function (e) {
+      if (navOpen && (e.key === "Escape" || e.key === "Esc")) closeNav(true);
+    });
+
+    // Αλλαγή προσανατολισμού / μεγέθυνση σε desktop: το panel δεν υπάρχει
+    // πια, οπότε οι κλάσεις πρέπει να φύγουν αλλιώς η σελίδα μένει κλειδωμένη.
+    var leaveMobile = function () {
+      if (mq.matches) return;
+      closeNav(false);
+      // Σκέτο καθάρισμα, ακόμη κι αν χάθηκε κάπου το state.
+      if (closingTimer) { clearTimeout(closingTimer); closingTimer = null; }
+      document.body.classList.remove("nav-open", "nav-closing", "nav-lock");
+      document.body.style.top = "";
+    };
+    if (mq.addEventListener) mq.addEventListener("change", leaveMobile);
+    else if (mq.addListener) mq.addListener(leaveMobile);
+    // Fallback: σε μερικά κινητά browsers το matchMedia δεν πυροδοτείται
+    // αξιόπιστα στην περιστροφή της οθόνης.
+    window.addEventListener("resize", leaveMobile, { passive: true });
+    window.addEventListener("orientationchange", leaveMobile);
   }
 
-  // Sticky header shadow
-  var header = document.querySelector(".site-header");
+  /* ----------------------------------------------------------
+     Sticky header shadow
+     ---------------------------------------------------------- */
   if (header) {
     var onScroll = function () {
-      header.classList.toggle("scrolled", window.scrollY > 24);
+      // Με ανοιχτό μενού το body είναι position: fixed και το scrollY
+      // μηδενίζεται· χωρίς αυτό το guard η μπάρα «ξεθώριαζε» στο άνοιγμα.
+      if (navOpen) return;
+      header.classList.toggle("scrolled", window.pageYOffset > 24);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
   }
 
-  // Reveal on scroll
+  /* ----------------------------------------------------------
+     Reveal on scroll
+     ---------------------------------------------------------- */
   var revealEls = document.querySelectorAll(".reveal");
   // Dev aid / safety: reveal everything at once
   if (location.hash === "#showall") {

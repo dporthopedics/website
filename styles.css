@@ -118,13 +118,29 @@ a { color: inherit; text-decoration: none; }
   position: fixed;
   inset: 0 0 auto 0;
   z-index: 100;
-  transition: background .4s var(--ease), box-shadow .4s var(--ease), backdrop-filter .4s var(--ease);
 }
-.site-header.scrolled {
+/* ΠΡΟΣΟΧΗ: το backdrop-filter ΔΕΝ μπαίνει στο ίδιο το .site-header.
+   Στοιχείο με backdrop-filter γίνεται containing block για τα position:fixed
+   παιδιά του — οπότε μόλις ο χρήστης έκανε scroll (.scrolled) το μενού του
+   κινητού «κλειδωνόταν» μέσα στο ύψος της μπάρας και άνοιγε μισό.
+   Το θολό φόντο ζει σε ψευδοστοιχείο, που δεν επηρεάζει τα παιδιά. */
+.site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
   background: rgba(250, 245, 238, 0.86);
+  -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   box-shadow: 0 1px 0 var(--line), 0 14px 40px -30px rgba(74, 61, 51, 0.5);
+  transition: opacity .4s var(--ease);
 }
+.site-header.scrolled::before { opacity: 1; }
+
+/* Σκίαση πίσω από το ανοιχτό μενού κινητού (μπαίνει από το main.js) */
+.nav-backdrop { display: none; }
 .nav {
   display: flex;
   align-items: center;
@@ -783,23 +799,79 @@ a { color: inherit; text-decoration: none; }
    Responsive
    ============================================================ */
 @media (max-width: 900px) {
-  .nav-toggle { display: flex; z-index: 120; }
+  .nav-toggle {
+    display: flex;
+    position: relative;
+    z-index: 120;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 105;
+    background: rgba(23, 48, 64, 0.45);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .35s var(--ease), visibility 0s linear .35s;
+  }
+  .nav-open .nav-backdrop {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity .35s var(--ease), visibility 0s;
+  }
+
   .nav-links {
     position: fixed;
-    inset: 0 0 0 auto;
-    width: min(80vw, 340px);
+    top: 0; right: 0; bottom: 0; left: auto;
+    /* Όπου υποστηρίζεται το dvh κερδίζει· αλλιώς μένει το top/bottom. */
+    height: 100dvh;
+    width: min(86vw, 340px);
+    z-index: 110;
     flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 1.6rem;
-    padding: 2rem 2.4rem;
+    align-items: stretch;
+    /* ΟΧΙ justify-content: center — με 15 links το περιεχόμενο ξεπερνά το
+       ύψος της οθόνης και το κεντράρισμα έκοβε τα πρώτα links έξω από την
+       περιοχή κύλισης, χωρίς τρόπο να τα φτάσεις. */
+    justify-content: flex-start;
+    gap: 0.35rem;
+    padding: calc(84px + 0.5rem) 2rem max(2.5rem, env(safe-area-inset-bottom)) 2rem;
     background: var(--cream);
-    box-shadow: -20px 0 60px -30px rgba(74, 61, 51, 0.6);
+    box-shadow: -20px 0 60px -30px rgba(23, 48, 64, 0.6);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     transform: translateX(100%);
+    /* Κλειστό = visibility: hidden, ώστε τα links να μην πιάνονται με Tab
+       ούτε να διαβάζονται από screen readers ενώ είναι εκτός οθόνης.
+       Την ώρα που κλείνει, το .nav-closing το κρατά ορατό όσο τρέχει το
+       slide-out (το βάζει/βγάζει το main.js — πιο αξιόπιστο από
+       transition-delay πάνω στο visibility). */
+    visibility: hidden;
     transition: transform .45s var(--ease);
   }
+  .nav-open .nav-links,
+  .nav-closing .nav-links { visibility: visible; }
   .nav-open .nav-links { transform: translateX(0); }
   .nav-links a { font-size: 1rem; }
+  /* Άνετος στόχος για δάχτυλο */
+  .nav-links > li > a { display: block; padding-block: 0.6rem; }
+  .nav-links .btn-nav { margin-top: 0.8rem; text-align: center; }
+
+  /* Κλείδωμα της σελίδας πίσω από το ανοιχτό μενού */
+  body.nav-lock {
+    position: fixed;
+    width: 100%;
+    overflow: hidden;
+  }
+
   .nav-open .nav-toggle span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   .nav-open .nav-toggle span:nth-child(2) { opacity: 0; }
   .nav-open .nav-toggle span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
@@ -1374,7 +1446,6 @@ a.svc:hover .svc-more { color: var(--rose); transform: translateX(4px); }
     padding: 0.4rem 0 0 0.8rem;
   }
   .has-sub > .sub a { padding: 0.4rem 0; }
-  .nav-links { overflow-y: auto; align-items: stretch; }
 }
 
 @media (max-width: 620px) {
