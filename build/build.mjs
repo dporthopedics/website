@@ -25,16 +25,40 @@ const abs = (p) => `${BASE}/${p}`;
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const attr = (s) => esc(s).replace(/"/g, "&quot;");
 
-// Πλήρης διεύθυνση για αναζήτηση στο Google Maps — με πόλη, ώστε να μην
-// μπερδεύεται η Θέρμη Θεσσαλονίκης με ομώνυμες περιοχές αλλού.
-const mapQuery = () => [BIZ.street, BIZ.area, BIZ.city, BIZ.postal].filter(Boolean).join(", ");
+// Η σκέτη διεύθυνση δεν γεωκωδικοποιείται στο Google (η οδός είναι
+// καταγεγραμμένη ως «Αποστόλη Κουγιάμη»), οπότε ο χάρτης έδειχνε περιοχή χωρίς
+// καρφίτσα. Ψάχνουμε λοιπόν με το όνομα του Google Business Profile: βγαίνει
+// ονοματισμένη καρφίτσα + κάρτα με τη βαθμολογία, στο ίδιο σημείο με τις
+// συντεταγμένες (ελέγχθηκε: γωνία Απ. Κουγιάμη × Ψελλού Μιχαήλ).
+const mapCoords = () => `${BIZ.lat},${BIZ.lng}`;
+const mapPlace = () => `${BIZ.gbpName}, ${BIZ.area}, ${BIZ.city}`;
+const mapLink = () => `https://www.google.com/maps/search/?api=1&amp;query=${encodeURIComponent(mapPlace())}`;
+// Οι οδηγίες πάνε σε συντεταγμένες: η πλοήγηση δεν πρέπει να εξαρτάται από
+// αναζήτηση ονόματος που μπορεί κάποτε να αλλάξει.
+const mapDirLink = () => `https://www.google.com/maps/dir/?api=1&amp;destination=${mapCoords()}`;
+
+// Χάρτης-προεπισκόπηση. Το iframe δεν δέχεται κλικ (pointer-events: none στο
+// CSS) και από πάνω του κάθεται σύνδεσμος που πιάνει όλη την επιφάνεια: έτσι
+// το πάτημα οπουδήποτε πάνω στον χάρτη ανοίγει την τοποθεσία στο Google Maps.
+// Το σκέτο embed δεν έβγαζε τίποτα με το πάτημα, που ήταν το παράπονο.
+function mapEmbed() {
+  const label = `${BIZ.street}, ${BIZ.area}, ${BIZ.city}`;
+  return `        <div class="contact-map reveal">
+          <iframe title="Χάρτης — ${attr(label)}" src="https://www.google.com/maps?q=${encodeURIComponent(mapPlace())}&amp;hl=el&amp;z=17&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1" aria-hidden="true"></iframe>
+          <a class="map-open" href="${mapLink()}" target="_blank" rel="noopener" aria-label="Άνοιγμα της τοποθεσίας ${attr(label)} στο Google Maps"></a>
+          <div class="map-actions">
+            <a class="map-pill" href="${mapLink()}" target="_blank" rel="noopener">Άνοιγμα στο Google Maps <span aria-hidden="true">↗</span></a>
+            <a class="map-pill map-pill--ghost" href="${mapDirLink()}" target="_blank" rel="noopener">Οδηγίες <span aria-hidden="true">→</span></a>
+          </div>
+        </div>`;
+}
 
 // ---- structured data: the clinic (LocalBusiness / MedicalClinic) ----
 const clinicLD = {
   "@type": ["MedicalClinic", "MedicalBusiness", "LocalBusiness"],
   "@id": `${BASE}/#clinic`,
   name: BIZ.name,
-  alternateName: BIZ.legalName,
+  alternateName: [BIZ.legalName, BIZ.gbpName],
   slogan: BIZ.tagline,
   url: BASE + "/",
   telephone: BIZ.phoneIntl,
@@ -52,7 +76,7 @@ const clinicLD = {
     addressCountry: BIZ.country,
   },
   geo: { "@type": "GeoCoordinates", latitude: BIZ.lat, longitude: BIZ.lng },
-  hasMap: `https://www.google.com/maps?q=${encodeURIComponent(mapQuery())}`,
+  hasMap: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapPlace())}`,
   areaServed: ["Θέρμη", "Θεσσαλονίκη", "Καλαμαριά", "Πυλαία", "Πανόραμα", "Ανατολική Θεσσαλονίκη"],
   openingHoursSpecification: [{
     "@type": "OpeningHoursSpecification",
@@ -267,9 +291,7 @@ function contactSection(tag = "h2", includeForm = false) {
             <a href="mailto:${BIZ.email}" class="btn btn-ghost">Στείλτε Email</a>${messageButton}
           </div>
         </div>
-        <div class="contact-map reveal">
-          <iframe title="Χάρτης — ${attr(BIZ.street + ", " + BIZ.area + ", " + BIZ.city)}" src="https://www.google.com/maps?q=${encodeURIComponent(mapQuery())}&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
-        </div>
+${mapEmbed()}
         ${form}
       </div>
     </section>`;
@@ -777,6 +799,14 @@ function pageAreasHub() {
       <div class="container">
         <div class="areas-grid">${cards}
         </div>
+      </div>
+    </section>
+    <section class="areas-map" id="chartis" aria-labelledby="areas-map-title">
+      <div class="container">
+        <p class="eyebrow reveal">Πού είμαστε</p>
+        <h2 class="section-title reveal" id="areas-map-title">Το ιατρείο στον χάρτη</h2>
+        <p class="page-lead reveal">${esc(BIZ.street)}, ${esc(BIZ.area)}, ${esc(BIZ.city)} — πατήστε τον χάρτη για να ανοίξει η τοποθεσία στο Google Maps.</p>
+${mapEmbed()}
       </div>
     </section>
   </main>` +

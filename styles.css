@@ -617,6 +617,7 @@ a { color: inherit; text-decoration: none; }
 .contact-actions { display: flex; flex-wrap: wrap; gap: 0.9rem; }
 
 .contact-map {
+  position: relative;
   border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid var(--line);
@@ -624,7 +625,57 @@ a { color: inherit; text-decoration: none; }
   min-height: 420px;
   height: 100%;
 }
-.contact-map iframe { width: 100%; height: 100%; min-height: 420px; border: 0; filter: grayscale(0.25) sepia(0.12); }
+/* Ο χάρτης είναι προεπισκόπηση: τα κλικ τα πιάνει ο σύνδεσμος από πάνω, ώστε
+   το πάτημα οπουδήποτε πάνω του να ανοίγει την τοποθεσία στο Google Maps.
+   Χωρίς αυτό το iframe έτρωγε το πάτημα και δεν έβγαινε πουθενά. */
+.contact-map iframe {
+  width: 100%; height: 100%; min-height: 420px; border: 0;
+  filter: grayscale(0.25) sepia(0.12);
+  pointer-events: none;
+}
+.map-open { position: absolute; inset: 0; z-index: 1; }
+.map-open:focus-visible { outline: 2px solid var(--rose); outline-offset: -5px; }
+.map-actions {
+  position: absolute;
+  z-index: 2;
+  /* Αριστερά/δεξιά στο 0 (και όχι left: 50% με transform): αλλιώς το πλάτος
+     περιορίζεται στο μισό του χάρτη και τα κουμπιά σπάνε σε δύο σειρές.
+     Το bottom κρατά απόσταση από τη γραμμή credits της Google. */
+  left: 0;
+  right: 0;
+  bottom: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.55rem;
+  padding-inline: 0.9rem;
+  /* Το κουτί απλώνεται σε όλο το πλάτος, οπότε χωρίς αυτό έτρωγε τα κλικ
+     δεξιά κι αριστερά από τα κουμπιά — νεκρή λωρίδα πάνω στον χάρτη. */
+  pointer-events: none;
+}
+.map-pill {
+  pointer-events: auto;
+  background: var(--cocoa);
+  color: var(--cream);
+  border: 1px solid var(--cocoa);
+  border-radius: 100px;
+  padding: 0.62rem 1.2rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  box-shadow: 0 14px 34px -18px rgba(74, 61, 51, 0.7);
+  transition: background .3s var(--ease), color .3s var(--ease), transform .3s var(--ease);
+}
+.map-pill--ghost { background: var(--cream); color: var(--cocoa); border-color: var(--line); }
+.map-pill:hover,
+.contact-map:hover .map-pill:not(.map-pill--ghost) { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+.map-pill--ghost:hover { background: var(--cocoa); border-color: var(--cocoa); }
+.map-pill:hover { transform: translateY(-2px); }
+
+/* Χάρτης στο τέλος της σελίδας «Περιοχές» */
+.areas-map { padding-block: 0 var(--section-y); scroll-margin-top: 120px; }
+.areas-map .page-lead { margin-bottom: clamp(1.6rem, 3vw, 2.4rem); }
+.areas-map .contact-map { height: clamp(360px, 46vw, 520px); }
 
 .contact-form-panel {
   grid-column: 1 / -1;
@@ -999,6 +1050,22 @@ a { color: inherit; text-decoration: none; }
 
 /* Nav dropdown (services) */
 .has-sub { position: relative; }
+/* Γέφυρα πάνω από το κενό ανάμεσα στη μπάρα και το dropdown. Χωρίς αυτή, ο
+   δείκτης που κατεβαίνει από το «Υπηρεσίες» προς τα links περνά 10px εκτός
+   :hover, το μενού κλείνει και δεν προλαβαίνεις να διαλέξεις — γι' αυτό
+   «χανόταν» άλλοτε ναι, άλλοτε όχι, ανάλογα με την ταχύτητα του ποντικιού. */
+.has-sub::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max(100%, 280px);
+  height: 18px;
+  pointer-events: none;
+}
+.has-sub:hover::after,
+.has-sub:focus-within::after { pointer-events: auto; }
 .has-sub > .sub {
   list-style: none;
   margin: 0; padding: 0.6rem;
@@ -1434,6 +1501,7 @@ a.svc:hover .svc-more { color: var(--rose); transform: translateX(4px); }
 
 @media (max-width: 900px) {
   /* Mobile: show submenu inline, no hover dropdown */
+  .has-sub::after { display: none; }
   .has-sub > .sub {
     position: static;
     transform: none;
