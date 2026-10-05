@@ -6,6 +6,7 @@ import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BASE, BIZ, SERVICES, AREAS, POSTS } from "./data.mjs";
+import { REVIEWS, REVIEWS_META } from "./reviews.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 // Soro blog feed (client account) — rendered client-side on blog/index.html
@@ -1042,6 +1043,44 @@ function pagePost(p) {
 }
 
 // ====================================================================
+//  GOOGLE REVIEWS (σελίδα Επικοινωνίας)
+// ====================================================================
+const GOOGLE_REVIEWS_URL = "https://www.google.com/maps?cid=13307167049771273234";
+const REVIEWS_VISIBLE = 9;
+
+function reviewsSection() {
+  const stars = `<span class="g-stars" aria-hidden="true">★★★★★</span>`;
+  const cards = REVIEWS.map((rv, i) => `
+          <li class="review-card${i >= REVIEWS_VISIBLE ? " is-extra" : ""}">
+            <div class="review-top">${stars}<time datetime="${rv.date}">${rv.month}</time></div>
+            <blockquote class="review-text"><p>${esc(rv.text).replace(/\n/g, "</p><p>")}</p></blockquote>
+            <button type="button" class="review-more" hidden>Περισσότερα</button>
+            <p class="review-author">${esc(rv.name)}<span>Κριτική στο Google</span></p>
+          </li>`).join("");
+  return `
+    <section class="reviews" id="kritikes" aria-labelledby="reviews-title">
+      <div class="container">
+        <div class="reviews-head reveal">
+          <div>
+            <p class="eyebrow">Κριτικές στο Google</p>
+            <h2 class="section-title" id="reviews-title">Η εμπειρία των <em>ασθενών μας</em></h2>
+          </div>
+          <a class="reviews-score" href="${GOOGLE_REVIEWS_URL}" target="_blank" rel="noopener">
+            <span class="reviews-score-num">${REVIEWS_META.rating}</span>
+            <span class="reviews-score-meta">${stars}<span>${REVIEWS_META.count} αξιολογήσεις στο Google</span></span>
+          </a>
+        </div>
+        <ul class="reviews-grid" data-reviews>${cards}
+        </ul>
+        <div class="reviews-actions">
+          <button type="button" class="btn btn-ghost" data-reviews-all>Όλες οι κριτικές (${REVIEWS.length})</button>
+          <a href="${GOOGLE_REVIEWS_URL}" class="btn btn-primary" target="_blank" rel="noopener">Δείτε τις στο Google <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>`;
+}
+
+// ====================================================================
 //  PAGE: CONTACT
 // ====================================================================
 function pageContact() {
@@ -1064,6 +1103,7 @@ function pageContact() {
     `
   <main id="main">` +
     contactSection("h1", true) +
+    reviewsSection() +
     `
   </main>` +
     footer(depth);

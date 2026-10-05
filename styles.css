@@ -836,6 +836,113 @@ a { color: inherit; text-decoration: none; }
 .cb-credit a:hover { opacity: 1; color: var(--blush); }
 
 /* ============================================================
+   Google reviews (σελίδα Επικοινωνίας)
+   ============================================================ */
+.reviews {
+  padding-block: 0 var(--section-y);
+  scroll-margin-top: 120px;
+}
+.reviews-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem 3rem;
+  flex-wrap: wrap;
+  padding-top: clamp(2.5rem, 6vw, 4.5rem);
+  border-top: 1px solid var(--line);
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+.reviews-head .section-title { margin-bottom: 0; }
+.g-stars { color: #f4b400; letter-spacing: 0.08em; font-size: 0.95rem; line-height: 1; }
+.reviews-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1.4rem 0.9rem 1.2rem;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 24px 50px -40px rgba(23, 48, 64, 0.6);
+  transition: border-color .3s var(--ease), transform .3s var(--ease);
+}
+.reviews-score:hover { border-color: var(--rose); transform: translateY(-2px); }
+.reviews-score-num {
+  font-family: var(--serif);
+  font-size: 2.8rem;
+  line-height: 1;
+  font-weight: 500;
+  color: var(--cocoa);
+}
+.reviews-score-meta { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.8rem; color: var(--ink-soft); }
+
+.reviews-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 3 280px;
+  column-gap: 1.25rem;
+}
+.review-card {
+  break-inside: avoid;
+  margin: 0 0 1.25rem;
+  padding: 1.5rem 1.5rem 1.3rem;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.review-card.is-extra { display: none; }
+.reviews-grid.is-all .review-card.is-extra { display: flex; }
+@media (max-width: 560px) {
+  .reviews-grid:not(.is-all) .review-card:nth-child(n+5) { display: none; }
+  .reviews-score { width: 100%; }
+}
+.review-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.review-top time { font-size: 0.74rem; color: var(--taupe); }
+.review-text { margin: 0; color: var(--ink); font-size: 0.97rem; line-height: 1.65; }
+.review-text p { margin: 0 0 0.6em; }
+.review-text p:last-child { margin-bottom: 0; }
+.review-card.is-clamped .review-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 8;
+  overflow: hidden;
+}
+.review-more {
+  align-self: flex-start;
+  margin-top: -0.4rem;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--rose);
+  color: var(--mocha);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.review-more:hover { color: var(--cocoa); }
+.review-author {
+  margin: 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  font-weight: 500;
+  color: var(--cocoa);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.review-author span { font-weight: 400; font-size: 0.74rem; color: var(--taupe); }
+.reviews-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.9rem;
+  margin-top: clamp(1.25rem, 3vw, 2rem);
+}
+
+/* ============================================================
    Reveal animation
    ============================================================ */
 .reveal {

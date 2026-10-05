@@ -160,3 +160,47 @@
     });
   }
 })();
+
+/* ----------------------------------------------------------
+   Κριτικές Google: μακριά κείμενα κόβονται με «Περισσότερα»,
+   οι υπόλοιπες κάρτες ανοίγουν με «Όλες οι κριτικές».
+   Χωρίς JS όλα τα κείμενα μένουν ολόκληρα (το clamp μπαίνει από εδώ).
+   ---------------------------------------------------------- */
+(function () {
+  var grid = document.querySelector("[data-reviews]");
+  if (!grid) return;
+
+  var clampCards = function () {
+    grid.querySelectorAll(".review-card").forEach(function (card) {
+      if (card.dataset.open === "1") return;
+      var text = card.querySelector(".review-text");
+      var more = card.querySelector(".review-more");
+      card.classList.add("is-clamped");
+      if (!card.offsetParent) return; // κρυφή κάρτα, θα μετρηθεί όταν ανοίξει
+      var over = text.scrollHeight > text.clientHeight + 2;
+      if (!over) card.classList.remove("is-clamped");
+      more.hidden = !over;
+    });
+  };
+
+  grid.addEventListener("click", function (e) {
+    var more = e.target.closest(".review-more");
+    if (!more) return;
+    var card = more.closest(".review-card");
+    card.dataset.open = "1";
+    card.classList.remove("is-clamped");
+    more.hidden = true;
+  });
+
+  var all = document.querySelector("[data-reviews-all]");
+  if (all) {
+    all.addEventListener("click", function () {
+      grid.classList.add("is-all");
+      all.hidden = true;
+      clampCards();
+    });
+  }
+
+  clampCards();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(clampCards);
+})();
