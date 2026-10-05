@@ -501,7 +501,7 @@ function pageHome() {
       </div>
     </section>
 ` +
-    contactSection("h2", true) +
+    contactSection("h2", true, reviewsSection()) +
     `
   </main>` +
     ctaBand(depth) +
