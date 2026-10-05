@@ -223,7 +223,7 @@ function ctaBand(depth) {
 }
 
 // ---- contact section (αρχική + σελίδα επικοινωνίας) -----------------
-function contactSection(tag = "h2", includeForm = false) {
+function contactSection(tag = "h2", includeForm = false, beforeForm = "") {
   const messageButton = includeForm
     ? `\n            <a href="#contact-form" class="btn btn-ghost">Στείλτε μας μήνυμα</a>`
     : "";
@@ -293,6 +293,7 @@ function contactSection(tag = "h2", includeForm = false) {
           </div>
         </div>
 ${mapEmbed()}
+${beforeForm}
         ${form}
       </div>
     </section>`;
@@ -1058,8 +1059,7 @@ function reviewsSection() {
             <p class="review-author">${esc(rv.name)}<span>Κριτική στο Google</span></p>
           </li>`).join("");
   return `
-    <section class="reviews" id="kritikes" aria-labelledby="reviews-title">
-      <div class="container">
+        <section class="reviews" id="kritikes" aria-labelledby="reviews-title">
         <div class="reviews-head reveal">
           <div>
             <p class="eyebrow">Κριτικές στο Google</p>
@@ -1076,8 +1076,7 @@ function reviewsSection() {
           <button type="button" class="btn btn-ghost" data-reviews-all>Όλες οι κριτικές (${REVIEWS.length})</button>
           <a href="${GOOGLE_REVIEWS_URL}" class="btn btn-primary" target="_blank" rel="noopener">Δείτε τις στο Google <span aria-hidden="true">↗</span></a>
         </div>
-      </div>
-    </section>`;
+        </section>`;
 }
 
 // ====================================================================
@@ -1102,8 +1101,7 @@ function pageContact() {
     crumbs(depth, trail) +
     `
   <main id="main">` +
-    contactSection("h1", true) +
-    reviewsSection() +
+    contactSection("h1", true, reviewsSection()) +
     `
   </main>` +
     footer(depth);
